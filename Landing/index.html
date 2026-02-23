@@ -1,0 +1,1158 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Landing de Dashi para gestionar reseñas y feedback privado con una experiencia simple y profesional." />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#070708" />
+  <title>Dashi | Gestión de reseñas</title>
+  <style>
+    :root {
+      --bg: #070708;
+      --text: #f5f5f7;
+      --muted: #b0b0b5;
+      --accent: #e11d2e;
+      --accent-dark: #b3121f;
+      --star-off: #3a3a40;
+      --border: rgba(245, 245, 247, 0.12);
+      --glass: rgba(20, 20, 22, 0.66);
+      --shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+      --radius: 20px;
+      --radius-sm: 14px;
+      --transition: 220ms ease;
+      --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-silk-soft: cubic-bezier(0.24, 0.96, 0.32, 1);
+      --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+      --card-pad: 24px;
+      --card-gap: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 14px 24px 24px;
+      background:
+        radial-gradient(900px 450px at 50% 12%, rgba(225, 29, 46, 0.09), transparent 62%),
+        #050506;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      position: relative;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(10, 10, 12, 0.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: containerEnter 620ms var(--ease-premium) forwards;
+    }
+
+    .inner {
+      padding: 22px 36px 36px;
+    }
+
+    .inner > .card:first-of-type {
+      position: relative;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: cardReveal 560ms var(--ease-premium) 220ms forwards;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .inner > .card:first-of-type::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(
+        110deg,
+        transparent 28%,
+        rgba(245, 245, 247, 0.14) 48%,
+        rgba(225, 29, 46, 0.12) 52%,
+        transparent 72%
+      );
+      background-size: 220% 100%;
+      background-position: 100% 0;
+      opacity: 0;
+      pointer-events: none;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: borderShimmer 880ms var(--ease-premium) 320ms forwards;
+    }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 0 10px;
+      opacity: 0;
+      transform: translateY(5px);
+      animation: logoReveal 560ms var(--ease-premium) 70ms forwards;
+      background: transparent;
+    }
+
+    .brand-logo {
+      width: min(100%, 390px);
+      max-width: 390px;
+      height: auto;
+      display: block;
+      background: transparent;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.55));
+      transform-origin: center top;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(1.45rem, 2.7vw, 2rem);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      transform: translateY(5px);
+      animation: textReveal 500ms var(--ease-premium) 140ms forwards;
+      will-change: transform, opacity;
+    }
+
+    .subtitle {
+      margin: 10px auto 30px;
+      max-width: 520px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(5px);
+      animation: textReveal 480ms var(--ease-premium) 205ms forwards;
+      will-change: transform, opacity;
+    }
+
+    .card {
+      background: rgba(12, 12, 14, 0.74);
+      border: 1px solid rgba(245, 245, 247, 0.1);
+      border-radius: var(--radius-sm);
+      padding: var(--card-pad);
+      margin-bottom: var(--card-gap);
+      backdrop-filter: blur(8px);
+      transition: border-color 220ms var(--ease-silk-soft), box-shadow 220ms var(--ease-silk-soft);
+    }
+
+    .card:hover {
+      border-color: rgba(245, 245, 247, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .rating-title {
+      margin: 0 0 16px;
+      font-size: 0.94rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .star {
+      border: none;
+      background: transparent;
+      color: var(--star-off);
+      font-size: clamp(1.85rem, 5.5vw, 2.35rem);
+      line-height: 1;
+      padding: 4px;
+      cursor: pointer;
+      transition: transform 170ms var(--ease-silk-soft), color 170ms var(--ease-silk-soft), filter 170ms var(--ease-silk-soft);
+      will-change: transform;
+    }
+
+    .star:hover,
+    .star:focus-visible {
+      color: var(--accent);
+      transform: translateY(-1px) scale(1.035);
+      filter: drop-shadow(0 0 6px rgba(225, 29, 46, 0.14));
+      outline: none;
+    }
+
+    .star.active {
+      color: var(--accent);
+      filter: drop-shadow(0 0 6px rgba(225, 29, 46, 0.14));
+    }
+
+    .star.is-pressing {
+      animation: starTap 145ms var(--ease-silk-soft);
+    }
+
+    .rating-text {
+      margin: 0;
+      min-height: 1.4em;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.94rem;
+      color: #f1747f;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 220ms var(--ease-premium), transform 220ms var(--ease-premium);
+    }
+
+    .rating-text.is-updating {
+      opacity: 0.45;
+      transform: translateY(2px);
+    }
+
+    .section {
+      display: block;
+      overflow: hidden;
+      max-height: 0;
+      pointer-events: none;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-color: transparent;
+      transition:
+        max-height 240ms var(--ease-silk-soft),
+        padding-top 200ms var(--ease-silk-soft),
+        padding-bottom 200ms var(--ease-silk-soft),
+        margin-bottom 200ms var(--ease-silk-soft),
+        border-color 200ms ease;
+      will-change: max-height;
+    }
+
+    .section > * {
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity 280ms var(--ease-premium),
+        transform 280ms var(--ease-premium);
+    }
+
+    .section > *:nth-child(2) {
+      transition-delay: 12ms;
+    }
+
+    .section > *:nth-child(3) {
+      transition-delay: 22ms;
+    }
+
+    .section form > * {
+      transition-delay: 0ms;
+    }
+
+    .section.visible form > * {
+      transition-delay: 35ms;
+    }
+
+    .section.visible form > *:nth-child(2) { transition-delay: 50ms; }
+    .section.visible form > *:nth-child(3) { transition-delay: 65ms; }
+    .section.visible form > *:nth-child(4) { transition-delay: 80ms; }
+    .section.visible form > *:nth-child(5) { transition-delay: 95ms; }
+    .section.visible form > *:nth-child(6) { transition-delay: 110ms; }
+    .section.visible form > *:nth-child(7) { transition-delay: 125ms; }
+    .section.visible form > *:nth-child(8) { transition-delay: 140ms; }
+    .section.visible form > *:nth-child(9) { transition-delay: 155ms; }
+    .section.visible form > *:nth-child(10) { transition-delay: 170ms; }
+
+    .section form > * {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .section.visible {
+      max-height: var(--section-max, 760px);
+      pointer-events: auto;
+      padding-top: var(--card-pad);
+      padding-bottom: var(--card-pad);
+      margin-bottom: var(--card-gap);
+      border-color: rgba(245, 245, 247, 0.1);
+    }
+
+    .section.visible > * {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 45ms;
+    }
+
+    .section.visible form > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .actions.after-form {
+      margin-top: 14px;
+      justify-content: center;
+    }
+
+    .actions.after-form .btn {
+      flex: 0 1 auto;
+      min-width: 220px;
+      min-height: 40px;
+      padding: 10px 14px;
+      font-size: 0.96rem;
+      line-height: 1.2;
+    }
+
+    .btn {
+      appearance: none;
+      position: relative;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.96rem;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      text-align: center;
+      min-height: 46px;
+      cursor: pointer;
+      overflow: hidden;
+      transition:
+        transform 170ms var(--ease-silk-soft),
+        filter 170ms var(--ease-silk-soft),
+        background-color 170ms var(--ease-silk-soft),
+        border-color 170ms var(--ease-silk-soft),
+        box-shadow 170ms var(--ease-silk-soft),
+        opacity 170ms var(--ease-silk-soft);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid rgba(225, 29, 46, 0.75);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      border: 1px solid rgba(245, 245, 247, 0.08);
+      color: #f5f5f7;
+      background: linear-gradient(145deg, var(--accent) 0%, var(--accent-dark) 100%);
+      flex: 1 1 240px;
+      box-shadow: 0 8px 18px rgba(225, 29, 46, 0.2);
+    }
+
+    .btn-primary::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.14) 48%, transparent 78%);
+      transform: translateX(-140%);
+      transition: transform 520ms var(--ease-premium);
+      pointer-events: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow: 0 9px 18px rgba(225, 29, 46, 0.2);
+    }
+
+    .btn-primary:hover::before {
+      transform: translateX(135%);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(245, 245, 247, 0.18);
+      color: var(--text);
+      background: rgba(12, 12, 13, 0.7);
+      flex: 1 1 220px;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      background: rgba(245, 245, 247, 0.08);
+      border-color: rgba(245, 245, 247, 0.24);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.16);
+    }
+
+    .btn-secondary-quiet {
+      flex: 0 1 auto;
+      min-height: 40px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      max-width: 280px;
+      margin-inline: auto;
+      opacity: 0.92;
+    }
+
+    .btn-secondary-quiet:hover {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.992);
+      box-shadow: none;
+      transition-duration: 90ms;
+    }
+
+    .btn[aria-disabled="true"],
+    .btn:disabled {
+      cursor: default;
+      opacity: 0.86;
+    }
+
+    .feedback-form {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 245, 247, 0.16);
+      background: rgba(5, 5, 6, 0.7);
+      color: var(--text);
+      padding: 11px 12px;
+      font: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(245, 245, 247, 0.46);
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(225, 29, 46, 0.75);
+      box-shadow: 0 0 0 3px rgba(225, 29, 46, 0.12);
+      background: rgba(9, 9, 10, 0.9);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .helper {
+      margin-top: 2px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .error {
+      min-height: 1.2em;
+      margin-top: -2px;
+      font-size: 0.85rem;
+      color: #ff7070;
+    }
+
+    .success {
+      min-height: 1.2em;
+      margin-top: 2px;
+      font-size: 0.9rem;
+      color: #9ef4bb;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 240ms var(--ease-silk-soft), transform 240ms var(--ease-silk-soft);
+    }
+
+    .success.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer-note {
+      border-top: 1px solid rgba(245, 245, 247, 0.1);
+      padding: 14px 32px 20px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #909096;
+    }
+
+    .debug-panel {
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      width: min(420px, calc(100vw - 24px));
+      background: rgba(8, 8, 10, 0.92);
+      border: 1px solid rgba(245, 245, 247, 0.14);
+      border-radius: 12px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .debug-panel.hidden {
+      display: none;
+    }
+
+    .debug-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(245, 245, 247, 0.08);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .debug-head button {
+      background: transparent;
+      border: 1px solid rgba(245, 245, 247, 0.14);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .debug-body {
+      max-height: 220px;
+      overflow: auto;
+      padding: 10px 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      color: #d7d7dc;
+    }
+
+    .hp-field {
+      position: absolute !important;
+      left: -9999px !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --card-pad: 18px;
+      }
+
+      body {
+        padding: 10px 16px 16px;
+      }
+
+      .inner {
+        padding: 16px 18px 24px;
+      }
+
+      .footer-note {
+        padding: 12px 18px 18px;
+      }
+
+      .brand-logo {
+        width: min(100%, 280px);
+        max-width: 280px;
+      }
+    }
+
+    @keyframes logoReveal {
+      from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.995);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes containerEnter {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.996);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes textReveal {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes starTap {
+      0% { transform: scale(1); }
+      45% { transform: scale(0.975) translateY(1px); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes cardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes borderShimmer {
+      0% {
+        opacity: 0;
+        background-position: 115% 0;
+      }
+      18% {
+        opacity: 0.55;
+      }
+      72% {
+        opacity: 0.28;
+      }
+      100% {
+        opacity: 0;
+        background-position: -20% 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <div class="inner">
+      <div class="logo-wrap">
+        <img
+          class="brand-logo"
+          src="assets/dashi-logo-cropped.png"
+          alt="Dashi"
+          onerror="this.onerror=null; this.src='assets/dashi-logo.png';"
+        />
+      </div>
+
+      <h1>¿Cómo fue tu experiencia en Dashi?</h1>
+      <p class="subtitle">Tu opinión nos importa.</p>
+
+      <section class="card" aria-label="Selector de calificación">
+        <p class="rating-title">Calificanos</p>
+        <div class="stars" id="stars" role="radiogroup" aria-label="Calificación de experiencia">
+          <button class="star" data-value="1" role="radio" aria-checked="false" aria-label="1 estrella" type="button">★</button>
+          <button class="star" data-value="2" role="radio" aria-checked="false" aria-label="2 estrellas" type="button">★</button>
+          <button class="star" data-value="3" role="radio" aria-checked="false" aria-label="3 estrellas" type="button">★</button>
+          <button class="star" data-value="4" role="radio" aria-checked="false" aria-label="4 estrellas" type="button">★</button>
+          <button class="star" data-value="5" role="radio" aria-checked="false" aria-label="5 estrellas" type="button">★</button>
+        </div>
+        <p id="ratingText" class="rating-text" aria-live="polite"></p>
+      </section>
+
+      <section id="highRatingSection" class="card section" aria-live="polite">
+        <p class="rating-title">¡Gracias por tu valoración! Tu reseña en Google nos impulsa.</p>
+        <div class="actions">
+          <a id="googleLinkHigh" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Dejar reseña en Google ⭐</a>
+          <button id="showPrivateFromHigh" type="button" class="btn btn-secondary btn-secondary-quiet">Enviar comentario privado</button>
+        </div>
+      </section>
+
+      <section id="lowRatingSection" class="card section" aria-live="polite">
+        <p class="rating-title">Queremos entender qué pasó para mejorar tu próxima experiencia.</p>
+
+        <form id="feedbackForm" class="feedback-form" novalidate>
+          <label class="hp-field" for="website">Website
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </label>
+
+          <label for="name">Nombre (opcional)
+            <input id="name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Tu nombre" />
+          </label>
+
+          <label for="whatsapp">WhatsApp (opcional)
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="40" placeholder="Ej: +54 9 11 1234 5678" />
+          </label>
+
+          <label for="message">Mensaje (obligatorio)
+            <textarea id="message" name="message" required maxlength="1000" placeholder="Contanos qué pasó y qué podríamos mejorar"></textarea>
+          </label>
+          <p class="helper">Este mensaje es privado y lo recibe solo el equipo de Dashi.</p>
+
+          <p id="formError" class="error" aria-live="polite"></p>
+          <p id="formSuccess" class="success" aria-live="polite"></p>
+
+          <button type="submit" class="btn btn-primary">Enviar feedback privado</button>
+        </form>
+
+        <div class="actions after-form">
+          <a id="googleLinkLow" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Dejar reseña en Google</a>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-note">Dashi · Sistema de gestión de reseñas</div>
+  </main>
+
+  <script>
+    // Enlace único y fácil de editar para reseñas de Google.
+    const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=ChIJlSgq8MS1vJURKg3BHUwE6gY";
+    const FEEDBACK_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyLPWIhlrw-kml9r0NZSZhuXvv4OB6fc9Iz18ycKpcudpNS1U7iBoiJFkcqpin0U0rO/exec";
+    const REQUEST_TIMEOUT_MS = 12000;
+    const URL_PARAMS = new URLSearchParams(location.search);
+    const DEBUG = URL_PARAMS.get("debug") === "1";
+    const FEEDBACK_SEND_MODE = (() => {
+      const mode = (URL_PARAMS.get("sendMode") || "normal").toLowerCase();
+      return ["auto", "normal", "no-cors"].includes(mode) ? mode : "normal";
+    })(); // "auto" | "normal" | "no-cors"
+
+    const stars = Array.from(document.querySelectorAll(".star"));
+    const ratingText = document.getElementById("ratingText");
+    const highRatingSection = document.getElementById("highRatingSection");
+    const lowRatingSection = document.getElementById("lowRatingSection");
+    const showPrivateFromHigh = document.getElementById("showPrivateFromHigh");
+    const googleLinkHigh = document.getElementById("googleLinkHigh");
+    const googleLinkLow = document.getElementById("googleLinkLow");
+    const feedbackForm = document.getElementById("feedbackForm");
+    const feedbackSubmitButton = feedbackForm.querySelector('button[type="submit"]');
+    const honeypotInput = document.getElementById("website");
+    const nameInput = document.getElementById("name");
+    const whatsappInput = document.getElementById("whatsapp");
+    const messageInput = document.getElementById("message");
+    const formError = document.getElementById("formError");
+    const formSuccess = document.getElementById("formSuccess");
+
+    let selectedRating = 0;
+    let sectionSwitchTimer = null;
+    let ratingTextMotionTimer = null;
+    let debugPanel = null;
+    let debugBody = null;
+
+    googleLinkHigh.href = GOOGLE_REVIEW_URL;
+    googleLinkLow.href = GOOGLE_REVIEW_URL;
+
+    function ensureDebugPanel() {
+      if (!DEBUG) return null;
+      if (debugPanel) return debugPanel;
+
+      debugPanel = document.createElement("section");
+      debugPanel.className = "debug-panel";
+      debugPanel.setAttribute("aria-live", "polite");
+      debugPanel.innerHTML = `
+        <div class="debug-head">
+          <span>Debug Webhook</span>
+          <button type="button" id="debugClearBtn">Limpiar</button>
+        </div>
+        <pre class="debug-body" id="debugBody"></pre>
+      `;
+      document.body.appendChild(debugPanel);
+      debugBody = document.getElementById("debugBody");
+      document.getElementById("debugClearBtn").addEventListener("click", () => {
+        if (debugBody) debugBody.textContent = "";
+      });
+      return debugPanel;
+    }
+
+    function debugLog(message, value) {
+      if (!DEBUG) return;
+      ensureDebugPanel();
+      const stamp = new Date().toLocaleTimeString();
+      const line = value === undefined
+        ? `[${stamp}] ${message}`
+        : `[${stamp}] ${message}: ${typeof value === "string" ? value : JSON.stringify(value, null, 2)}`;
+
+      if (debugBody) {
+        debugBody.textContent += `${line}\n`;
+        debugBody.scrollTop = debugBody.scrollHeight;
+      }
+      console.log(message, value === undefined ? "" : value);
+    }
+
+    function normalizeWhitespace(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function fetchWithTimeout(url, options, timeoutMs) {
+      const controller = new AbortController();
+      const timerId = setTimeout(() => controller.abort(), timeoutMs);
+
+      return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timerId));
+    }
+
+    const ratingMessages = {
+      1: "Sentimos que no haya sido una buena experiencia.",
+      2: "Gracias por contarnos. Queremos mejorar.",
+      3: "Gracias por tu visita. Tu opinión nos ayuda.",
+      4: "¡Nos alegra saberlo!",
+      5: "¡Excelente! Gracias por elegir Dashi."
+    };
+
+    function updateStarsVisual(rating) {
+      stars.forEach((star) => {
+        const value = Number(star.dataset.value);
+        const isActive = value <= rating;
+        star.classList.toggle("active", isActive);
+        star.setAttribute("aria-checked", value === rating ? "true" : "false");
+      });
+    }
+
+    function playStarTap(star) {
+      star.classList.remove("is-pressing");
+      // Reinicia la animacion para clicks repetidos.
+      void star.offsetWidth;
+      star.classList.add("is-pressing");
+    }
+
+    function measureSectionHeight(section) {
+      const wasVisible = section.classList.contains("visible");
+
+      if (!wasVisible) {
+        section.classList.add("visible");
+      }
+
+      const height = section.scrollHeight;
+
+      if (!wasVisible) {
+        section.classList.remove("visible");
+      }
+
+      return height;
+    }
+
+    function setSectionTargetHeight(section) {
+      const height = measureSectionHeight(section);
+      section.style.maxHeight = `${height}px`;
+      return height;
+    }
+
+    function hideSection(section) {
+      if (!section.classList.contains("visible")) {
+        section.style.maxHeight = "0px";
+        return;
+      }
+
+      section.style.maxHeight = `${section.scrollHeight}px`;
+      void section.offsetHeight;
+      section.classList.remove("visible");
+
+      requestAnimationFrame(() => {
+        section.style.maxHeight = "0px";
+      });
+    }
+
+    function showSection(section) {
+      const otherSection = section === highRatingSection ? lowRatingSection : highRatingSection;
+      const isSwitchingSections = otherSection.classList.contains("visible");
+
+      clearTimeout(sectionSwitchTimer);
+
+      if (otherSection !== section) {
+        hideSection(otherSection);
+      }
+
+      if (section.classList.contains("visible")) {
+        if (section.style.maxHeight !== "none") {
+          setSectionTargetHeight(section);
+        }
+        return;
+      }
+
+      const openTargetSection = () => {
+        section.style.maxHeight = "0px";
+        section.classList.add("visible");
+        void section.offsetHeight;
+
+        requestAnimationFrame(() => {
+          setSectionTargetHeight(section);
+        });
+      };
+
+      // Pequeña secuencia para que el cambio 3<->4 se sienta menos brusco.
+      if (isSwitchingSections) {
+        sectionSwitchTimer = setTimeout(openTargetSection, 34);
+      } else {
+        openTargetSection();
+      }
+    }
+
+    function handleRatingSelection(rating) {
+      selectedRating = rating;
+      updateStarsVisual(rating);
+      clearTimeout(ratingTextMotionTimer);
+      ratingText.classList.remove("is-updating");
+      void ratingText.offsetWidth;
+      ratingText.classList.add("is-updating");
+      ratingText.textContent = `${rating} estrella${rating > 1 ? "s" : ""}. ${ratingMessages[rating]}`;
+      ratingTextMotionTimer = setTimeout(() => {
+        ratingText.classList.remove("is-updating");
+      }, 170);
+
+      if (rating >= 4) {
+        showSection(highRatingSection);
+      } else {
+        showSection(lowRatingSection);
+      }
+    }
+
+    stars.forEach((star) => {
+      star.addEventListener("animationend", () => {
+        star.classList.remove("is-pressing");
+      });
+
+      star.addEventListener("click", () => {
+        const rating = Number(star.dataset.value);
+        playStarTap(star);
+        handleRatingSelection(rating);
+      });
+
+      star.addEventListener("keydown", (event) => {
+        const current = Number(star.dataset.value);
+
+        if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const next = Math.min(5, current + 1);
+          stars[next - 1].focus();
+          handleRatingSelection(next);
+        }
+
+        if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+          event.preventDefault();
+          const prev = Math.max(1, current - 1);
+          stars[prev - 1].focus();
+          handleRatingSelection(prev);
+        }
+      });
+    });
+
+    function wireGoogleButtonState(anchor) {
+      if (!anchor) return;
+
+      const originalText = anchor.textContent;
+      let cooldownTimer = null;
+
+      anchor.addEventListener("click", () => {
+        if (anchor.getAttribute("aria-disabled") === "true") {
+          return;
+        }
+
+        anchor.textContent = "Abriendo Google...";
+        anchor.setAttribute("aria-disabled", "true");
+        anchor.style.pointerEvents = "none";
+
+        clearTimeout(cooldownTimer);
+        cooldownTimer = setTimeout(() => {
+          anchor.textContent = originalText;
+          anchor.removeAttribute("aria-disabled");
+          anchor.style.pointerEvents = "";
+        }, 800);
+      });
+    }
+
+    wireGoogleButtonState(googleLinkHigh);
+    wireGoogleButtonState(googleLinkLow);
+
+    [highRatingSection, lowRatingSection].forEach((section) => {
+      section.style.maxHeight = "0px";
+
+      section.addEventListener("transitionend", (event) => {
+        if (event.propertyName !== "max-height") {
+          return;
+        }
+
+        if (section.classList.contains("visible")) {
+          section.style.maxHeight = "none";
+        }
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      [highRatingSection, lowRatingSection].forEach((section) => {
+        if (section.classList.contains("visible") && section.style.maxHeight !== "none") {
+          section.style.maxHeight = `${section.scrollHeight}px`;
+        }
+      });
+    });
+
+    showPrivateFromHigh.addEventListener("click", () => {
+      showSection(lowRatingSection);
+      messageInput.focus();
+    });
+
+    async function sendFeedbackNormal(payload) {
+      debugLog("POST ->", FEEDBACK_WEBHOOK_URL);
+      debugLog("payload", payload);
+
+      const response = await fetchWithTimeout(FEEDBACK_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }, REQUEST_TIMEOUT_MS);
+
+      const responseText = await response.text();
+      let responseJson = null;
+
+      try {
+        responseJson = responseText ? JSON.parse(responseText) : null;
+      } catch (parseError) {
+        responseJson = null;
+      }
+
+      debugLog("Respuesta status", response.status);
+      debugLog("Respuesta body", responseJson || responseText || "(vacío)");
+
+      return { response, responseText, responseJson };
+    }
+
+    async function sendFeedbackNoCors(payload) {
+      debugLog("Fallback no-cors", "enviando sin confirmación de respuesta");
+      console.log("Fallback no-cors", "enviando sin confirmación de respuesta");
+
+      await fetchWithTimeout(FEEDBACK_WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }, REQUEST_TIMEOUT_MS);
+
+      debugLog("Respuesta", "enviado sin confirmación (no-cors)");
+      return { noCors: true };
+    }
+
+    feedbackForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      formError.textContent = "";
+      formSuccess.textContent = "";
+      formSuccess.classList.remove("visible");
+      debugLog("Estado", "submit recibido");
+
+      const message = messageInput.value.trim();
+      const nameValue = normalizeWhitespace(nameInput.value);
+      const whatsappValue = normalizeWhitespace(whatsappInput.value);
+
+      if (!message) {
+        formError.textContent = "El mensaje es obligatorio para enviar el feedback privado.";
+        messageInput.focus();
+        return;
+      }
+
+      if (honeypotInput && honeypotInput.value.trim()) {
+        // Honeypot anti-spam: simulamos éxito sin enviar.
+        formSuccess.textContent = "Gracias. Tu mensaje fue enviado al equipo de Dashi.";
+        formSuccess.classList.add("visible");
+        feedbackForm.reset();
+        return;
+      }
+
+      if (message.length > 1000) {
+        formError.textContent = "El mensaje es demasiado largo.";
+        messageInput.focus();
+        return;
+      }
+
+      if (nameValue.length > 80) {
+        formError.textContent = "El nombre es demasiado largo.";
+        nameInput.focus();
+        return;
+      }
+
+      if (whatsappValue.length > 40) {
+        formError.textContent = "El WhatsApp es demasiado largo.";
+        whatsappInput.focus();
+        return;
+      }
+
+      const originalSubmitText = feedbackSubmitButton.textContent;
+      feedbackSubmitButton.disabled = true;
+      feedbackSubmitButton.setAttribute("aria-disabled", "true");
+      feedbackSubmitButton.textContent = "Enviando...";
+      feedbackForm.setAttribute("aria-busy", "true");
+      formError.textContent = "";
+      debugLog("Estado", "Enviando...");
+
+      const payload = {
+        rating: selectedRating || null,
+        name: nameValue,
+        whatsapp: whatsappValue,
+        message,
+        pageUrl: location.href,
+        ts: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        source: selectedRating >= 4 ? "high_rating_private_comment" : "low_rating_feedback"
+      };
+
+      try {
+        let sentWithoutConfirmation = false;
+        let normalSend;
+
+        try {
+          if (FEEDBACK_SEND_MODE === "no-cors") {
+            await sendFeedbackNoCors(payload);
+            sentWithoutConfirmation = true;
+          } else {
+            normalSend = await sendFeedbackNormal(payload);
+          }
+        } catch (normalError) {
+          debugLog("Error normal", String(normalError && normalError.message ? normalError.message : normalError));
+          console.error("Normal send error:", normalError);
+
+          if (FEEDBACK_SEND_MODE === "auto" && normalError instanceof TypeError) {
+            await sendFeedbackNoCors(payload);
+            sentWithoutConfirmation = true;
+          } else {
+            throw normalError;
+          }
+        }
+
+        if (!sentWithoutConfirmation) {
+          const { response, responseJson, responseText } = normalSend;
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} ${responseText || ""}`.trim());
+          }
+          debugLog("Confirmado", responseJson || responseText || "OK");
+          formSuccess.textContent = "Gracias. Tu mensaje fue enviado al equipo de Dashi.";
+        } else {
+          formSuccess.textContent = "Mensaje enviado sin confirmación (modo compatibilidad).";
+        }
+
+        formSuccess.classList.add("visible");
+        feedbackForm.reset();
+      } catch (error) {
+        const errorMessage = (error && error.name === "AbortError")
+          ? "El envío tardó demasiado. Probá de nuevo."
+          : "No se pudo enviar. Probá de nuevo.";
+        formError.textContent = errorMessage;
+        debugLog("Error", String(error && error.message ? error.message : error));
+      } finally {
+        feedbackSubmitButton.disabled = false;
+        feedbackSubmitButton.removeAttribute("aria-disabled");
+        feedbackSubmitButton.textContent = originalSubmitText;
+        feedbackForm.removeAttribute("aria-busy");
+      }
+    });
+  </script>
+</body>
+</html>
