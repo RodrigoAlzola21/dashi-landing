@@ -51,7 +51,7 @@ Opciones de envío:
 
 - Estado de envío (`submit recibido`, `Enviando...`)
 - URL del webhook
-- Payload enviado
+- Payload enviado (redactado, sin mostrar mensaje completo ni WhatsApp completo)
 - `status` de respuesta (si aplica)
 - Body JSON/texto de respuesta (si aplica)
 - Error (si falla)
@@ -108,8 +108,13 @@ El HTML tiene:
 
 Esto es útil si lo subís a GitHub Pages solo como preview temporal.
 
+Si esta landing va a producción y querés que aparezca en Google/Bing, quitá `noindex,nofollow`.
+Si lo dejás, los buscadores pueden rastrear la URL pero no deberían indexarla en resultados.
+
 ## Notas de seguridad (mínimas)
 
 - El webhook queda visible en el frontend (normal en landing estática).
-- Hay honeypot + validaciones básicas de longitud.
+- Hay honeypot + validaciones de formato/longitud (incluyendo WhatsApp obligatorio).
+- El Apps Script aplica rate limit por WhatsApp y deduplicación básica de feedback repetido.
+- Los logs del webhook guardan un resumen redactado del payload (sin mensaje completo).
 - Si el repo va a ser público y el tráfico sube, conviene agregar mitigación de spam adicional del lado Apps Script.
