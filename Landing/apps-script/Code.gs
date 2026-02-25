@@ -3,6 +3,14 @@ const LOGS_SHEET_NAME = 'Logs';
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_NAME_LENGTH = 80;
 const MAX_WHATSAPP_LENGTH = 40;
+const MIN_WHATSAPP_DIGITS = 8;
+const MAX_WHATSAPP_DIGITS = 15;
+const WHATSAPP_ALLOWED_REGEX = /^\+?[\d\s()-]+$/;
+const RATE_LIMIT_SECONDS = 180;
+const DUPLICATE_FEEDBACK_WINDOW_SECONDS = 86400;
+const CACHE_KEY_RATE_PREFIX = 'rate:';
+const CACHE_KEY_DUPLICATE_PREFIX = 'dup:';
+const LOG_PAYLOAD_PREVIEW_MAX_LENGTH = 500;
 
 // Opcional: si el script NO esta vinculado al spreadsheet, completa este ID.
 const FALLBACK_SPREADSHEET_ID = '';
@@ -12,45 +20,40 @@ function doPost(e) {
   var sheet = null;
   var rowAppended = null;
   var payloadInfo = { data: {}, postDataType: '', postDataContents: '' };
+  var payloadLogPreview = '';
   var logError = '';
 
   try {
     spreadsheet = getSpreadsheet_();
     payloadInfo = parsePayload_(e);
+    payloadLogPreview = buildSafePayloadPreview_(payloadInfo.data, payloadInfo.postDataContents);
 
     appendLog_(spreadsheet, {
       error: '',
       postDataType: payloadInfo.postDataType,
-      postDataContents: payloadInfo.postDataContents,
+      postDataContents: payloadLogPreview,
       note: 'doPost received'
     });
 
-    sheet = getOrCreateSheet_(spreadsheet, RESPONSES_SHEET_NAME);
-    ensureResponseHeaders_(sheet);
-
     var data = sanitizePayload_(payloadInfo.data || {});
-    validatePayload_(data);
     var serverTs = new Date().toISOString();
 
     if (data.website) {
       appendLog_(spreadsheet, {
         error: '',
         postDataType: payloadInfo.postDataType,
-        postDataContents: payloadInfo.postDataContents,
+        postDataContents: payloadLogPreview,
         note: 'honeypot hit - ignored'
       });
 
-      return jsonResponse_({
-        ok: true,
-        sheetName: sheet.getName(),
-        spreadsheetName: spreadsheet.getName(),
-        spreadsheetId: spreadsheet.getId(),
-        rowAppended: null,
-        received: Object.keys(data),
-        ignored: true,
-        reason: 'honeypot'
-      });
+      return jsonResponse_({ ok: true, ignored: true });
     }
+
+    validatePayload_(data);
+    assertAntiSpamAllowed_(data);
+
+    sheet = getOrCreateSheet_(spreadsheet, RESPONSES_SHEET_NAME);
+    ensureResponseHeaders_(sheet);
 
     sheet.appendRow([
       data.ts || '',
@@ -69,18 +72,22 @@ function doPost(e) {
     appendLog_(spreadsheet, {
       error: '',
       postDataType: payloadInfo.postDataType,
-      postDataContents: payloadInfo.postDataContents,
+      postDataContents: payloadLogPreview,
       note: 'appendRow OK row=' + rowAppended
     });
 
-    return jsonResponse_({
-      ok: true,
-      sheetName: sheet.getName(),
-      spreadsheetName: spreadsheet.getName(),
-      spreadsheetId: spreadsheet.getId(),
-      rowAppended: rowAppended,
-      received: Object.keys(data)
-    });
+    try {
+      markAntiSpamFeedback_(data);
+    } catch (antiSpamMarkErr) {
+      appendLog_(spreadsheet, {
+        error: String(antiSpamMarkErr),
+        postDataType: payloadInfo.postDataType,
+        postDataContents: payloadLogPreview,
+        note: 'anti-spam cache mark failed row=' + rowAppended
+      });
+    }
+
+    return jsonResponse_({ ok: true });
   } catch (err) {
     logError = (err && err.stack) ? String(err.stack) : String(err);
 
@@ -92,7 +99,7 @@ function doPost(e) {
         appendLog_(spreadsheet, {
           error: logError,
           postDataType: payloadInfo.postDataType || '',
-          postDataContents: payloadInfo.postDataContents || '',
+          postDataContents: payloadLogPreview || buildSafePayloadPreview_((payloadInfo && payloadInfo.data) || {}, (payloadInfo && payloadInfo.postDataContents) || ''),
           note: 'doPost error'
         });
       }
@@ -101,25 +108,14 @@ function doPost(e) {
       logError += ' | logError=' + String(logErr);
     }
 
-    return jsonResponse_({
-      ok: false,
-      sheetName: sheet ? sheet.getName() : RESPONSES_SHEET_NAME,
-      spreadsheetName: spreadsheet ? spreadsheet.getName() : null,
-      spreadsheetId: spreadsheet ? spreadsheet.getId() : null,
-      rowAppended: rowAppended,
-      received: Object.keys((payloadInfo && payloadInfo.data) || {}),
-      error: logError
-    });
+    return jsonResponse_(toClientErrorResponse_(err));
   }
 }
 
 function doGet() {
-  var ss = tryGetSpreadsheet_();
   return jsonResponse_({
     ok: true,
-    status: 'web app alive',
-    spreadsheetName: ss ? ss.getName() : null,
-    spreadsheetId: ss ? ss.getId() : null
+    status: 'web app alive'
   });
 }
 
@@ -242,6 +238,149 @@ function jsonResponse_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function createAppError_(code, message, extra) {
+  var err = new Error(message || code || 'AppError');
+  err.name = 'AppError';
+  err.code = code || 'APP_ERROR';
+  if (extra) {
+    Object.keys(extra).forEach(function (key) {
+      err[key] = extra[key];
+    });
+  }
+  return err;
+}
+
+function createValidationError_(code, message) {
+  var err = createAppError_(code, message);
+  err.name = 'ValidationError';
+  return err;
+}
+
+function toClientErrorResponse_(err) {
+  var code = (err && err.code) ? String(err.code) : 'INTERNAL_ERROR';
+  var message = 'No se pudo enviar. Probá de nuevo.';
+  var response = {
+    ok: false,
+    code: code,
+    message: message
+  };
+
+  if (code === 'MESSAGE_REQUIRED') {
+    response.message = 'El mensaje es obligatorio para enviar el feedback privado.';
+  } else if (code === 'MESSAGE_TOO_LONG') {
+    response.message = 'El mensaje es demasiado largo.';
+  } else if (code === 'NAME_TOO_LONG') {
+    response.message = 'El nombre es demasiado largo.';
+  } else if (code === 'WHATSAPP_REQUIRED') {
+    response.message = 'El WhatsApp es obligatorio para enviar el feedback privado.';
+  } else if (code === 'WHATSAPP_TOO_LONG') {
+    response.message = 'El WhatsApp es demasiado largo.';
+  } else if (code === 'WHATSAPP_INVALID_CHARS' || code === 'WHATSAPP_INVALID_DIGITS_LENGTH') {
+    response.message = 'Ingresá un WhatsApp válido (solo números, con + opcional, entre 8 y 15 dígitos).';
+  } else if (code === 'RATING_OUT_OF_RANGE') {
+    response.message = 'La calificación enviada no es válida.';
+  } else if (code === 'RATE_LIMITED') {
+    response.message = 'Esperá un momento antes de enviar otro feedback desde este WhatsApp.';
+  } else if (code === 'DUPLICATE_FEEDBACK') {
+    response.message = 'Ya recibimos un feedback muy similar desde este WhatsApp recientemente.';
+  } else if (code === 'INVALID_JSON') {
+    response.message = 'No se pudo procesar el envío. Probá de nuevo.';
+  }
+
+  if (err && err.retryAfterSec) {
+    response.retryAfterSec = Number(err.retryAfterSec);
+  }
+
+  return response;
+}
+
+function buildSafePayloadPreview_(data, rawContents) {
+  var payload = data || {};
+  var whatsapp = normalizeSpace_(payload.whatsapp);
+  var message = normalizeSpace_(payload.message);
+  var summary = {
+    rawLen: String(rawContents || '').length,
+    keys: Object.keys(payload),
+    rating: payload.rating || '',
+    nameLen: String(payload.name || '').length,
+    whatsappMasked: maskWhatsappForLog_(whatsapp),
+    whatsappDigits: whatsapp ? String(whatsapp).replace(/\D/g, '').length : 0,
+    messageLen: message.length,
+    messageHash12: message ? hashTextHex_(message.toLowerCase()).slice(0, 12) : '',
+    source: trimTo_(String(payload.source || ''), 80),
+    hasWebsite: !!normalizeSpace_(payload.website),
+    parseError: payload._parseError ? 'yes' : ''
+  };
+
+  return trimTo_(JSON.stringify(summary), LOG_PAYLOAD_PREVIEW_MAX_LENGTH);
+}
+
+function maskWhatsappForLog_(value) {
+  var digits = String(value || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.length <= 4) return digits;
+  return '***' + digits.slice(-4);
+}
+
+function getAntiSpamKeys_(data) {
+  var digits = normalizeWhatsappDigits_(data.whatsapp);
+  var normalizedMessage = normalizeForDuplicate_(data.message);
+
+  return {
+    rate: CACHE_KEY_RATE_PREFIX + digits,
+    duplicate: CACHE_KEY_DUPLICATE_PREFIX + digits + ':' + hashTextHex_(normalizedMessage)
+  };
+}
+
+function assertAntiSpamAllowed_(data) {
+  var cache = CacheService.getScriptCache();
+  var keys = getAntiSpamKeys_(data);
+
+  if (cache.get(keys.rate)) {
+    throw createAppError_('RATE_LIMITED', 'Too many requests for whatsapp', {
+      retryAfterSec: RATE_LIMIT_SECONDS
+    });
+  }
+
+  if (cache.get(keys.duplicate)) {
+    throw createAppError_('DUPLICATE_FEEDBACK', 'Duplicate feedback detected');
+  }
+}
+
+function markAntiSpamFeedback_(data) {
+  var cache = CacheService.getScriptCache();
+  var keys = getAntiSpamKeys_(data);
+
+  cache.put(keys.rate, '1', RATE_LIMIT_SECONDS);
+  cache.put(keys.duplicate, '1', DUPLICATE_FEEDBACK_WINDOW_SECONDS);
+}
+
+function normalizeWhatsappDigits_(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function normalizeForDuplicate_(value) {
+  return normalizeSpace_(value).toLowerCase();
+}
+
+function hashTextHex_(value) {
+  var digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(value || ''),
+    Utilities.Charset.UTF_8
+  );
+
+  var hex = '';
+  for (var i = 0; i < digest.length; i += 1) {
+    var byteValue = digest[i];
+    if (byteValue < 0) byteValue += 256;
+    var piece = byteValue.toString(16);
+    if (piece.length < 2) piece = '0' + piece;
+    hex += piece;
+  }
+  return hex;
+}
+
 function sanitizePayload_(data) {
   var out = Object.assign({}, data || {});
 
@@ -261,32 +400,43 @@ function sanitizePayload_(data) {
     out.rating = '';
   }
 
-  out.name = trimTo_(out.name, MAX_NAME_LENGTH);
-  out.whatsapp = trimTo_(out.whatsapp, MAX_WHATSAPP_LENGTH);
-  out.message = trimTo_(out.message, MAX_MESSAGE_LENGTH);
-
   return out;
 }
 
 function validatePayload_(data) {
   if (!data.message) {
-    throw new Error('ValidationError: message is required');
+    throw createValidationError_('MESSAGE_REQUIRED', 'message is required');
   }
 
   if (data.message.length > MAX_MESSAGE_LENGTH) {
-    throw new Error('ValidationError: message too long');
+    throw createValidationError_('MESSAGE_TOO_LONG', 'message too long');
   }
 
   if (data.name && data.name.length > MAX_NAME_LENGTH) {
-    throw new Error('ValidationError: name too long');
+    throw createValidationError_('NAME_TOO_LONG', 'name too long');
+  }
+
+  if (!data.whatsapp) {
+    throw createValidationError_('WHATSAPP_REQUIRED', 'whatsapp is required');
   }
 
   if (data.whatsapp && data.whatsapp.length > MAX_WHATSAPP_LENGTH) {
-    throw new Error('ValidationError: whatsapp too long');
+    throw createValidationError_('WHATSAPP_TOO_LONG', 'whatsapp too long');
+  }
+
+  if (data.whatsapp) {
+    if (!WHATSAPP_ALLOWED_REGEX.test(data.whatsapp)) {
+      throw createValidationError_('WHATSAPP_INVALID_CHARS', 'whatsapp invalid characters');
+    }
+
+    var whatsappDigits = String(data.whatsapp).replace(/\D/g, '');
+    if (whatsappDigits.length < MIN_WHATSAPP_DIGITS || whatsappDigits.length > MAX_WHATSAPP_DIGITS) {
+      throw createValidationError_('WHATSAPP_INVALID_DIGITS_LENGTH', 'whatsapp invalid digits length');
+    }
   }
 
   if (data.rating !== '' && (data.rating < 1 || data.rating > 5)) {
-    throw new Error('ValidationError: rating out of range');
+    throw createValidationError_('RATING_OUT_OF_RANGE', 'rating out of range');
   }
 }
 

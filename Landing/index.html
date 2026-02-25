@@ -6,6 +6,12 @@
   <meta name="description" content="Landing de Dashi para gestionar reseñas y feedback privado con una experiencia simple y profesional." />
   <meta name="robots" content="noindex,nofollow" />
   <meta name="theme-color" content="#070708" />
+  <meta property="og:title" content="Dashi | Gestión de reseñas" />
+  <meta property="og:description" content="Landing de Dashi para gestionar reseñas y feedback privado." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/dashi-logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="assets/dashi-logo.png" />
   <title>Dashi | Gestión de reseñas</title>
   <style>
     :root {
@@ -29,6 +35,11 @@
       --card-gap: 18px;
     }
 
+    html {
+      color-scheme: dark;
+      -webkit-text-size-adjust: 100%;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -37,13 +48,53 @@
       margin: 0;
       min-height: 100vh;
       font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       color: var(--text);
       display: grid;
       place-items: center;
-      padding: 14px 24px 24px;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+      position: relative;
+      isolation: isolate;
+      overflow-x: hidden;
       background:
         radial-gradient(900px 450px at 50% 12%, rgba(225, 29, 46, 0.09), transparent 62%),
         #050506;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.015) 0px,
+          rgba(255, 255, 255, 0.015) 1px,
+          transparent 1px,
+          transparent 20px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.012) 0px,
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px,
+          transparent 28px
+        );
+      opacity: 0.22;
+    }
+
+    body::after {
+      background:
+        radial-gradient(1200px 600px at 50% -5%, rgba(225, 29, 46, 0.05), transparent 62%),
+        radial-gradient(900px 500px at 50% 120%, rgba(0, 0, 0, 0.35), transparent 60%);
     }
 
     .container {
@@ -56,13 +107,40 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
       overflow: hidden;
+      isolation: isolate;
+      z-index: 1;
       opacity: 0;
       transform: translateY(8px);
       animation: containerEnter 620ms var(--ease-premium) forwards;
     }
 
+    .container::before,
+    .container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    .container::before {
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      z-index: 0;
+    }
+
+    .container::after {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+        radial-gradient(700px 180px at 50% 0%, rgba(225, 29, 46, 0.04), transparent 80%);
+      opacity: 0.9;
+      z-index: 0;
+    }
+
     .inner {
       padding: 22px 36px 36px;
+      position: relative;
+      z-index: 1;
     }
 
     .inner > .card:first-of-type {
@@ -181,6 +259,7 @@
       line-height: 1;
       padding: 4px;
       cursor: pointer;
+      touch-action: manipulation;
       transition: transform 170ms var(--ease-silk-soft), color 170ms var(--ease-silk-soft), filter 170ms var(--ease-silk-soft);
       will-change: transform;
     }
@@ -331,6 +410,7 @@
       min-height: 46px;
       cursor: pointer;
       overflow: hidden;
+      touch-action: manipulation;
       transition:
         transform 170ms var(--ease-silk-soft),
         filter 170ms var(--ease-silk-soft),
@@ -370,6 +450,10 @@
     }
 
     .btn-primary:hover::before {
+      transform: translateX(135%);
+    }
+
+    .btn-primary:focus-visible::before {
       transform: translateX(135%);
     }
 
@@ -418,6 +502,8 @@
       margin-top: 14px;
       display: grid;
       gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
     }
 
     label {
@@ -425,6 +511,26 @@
       gap: 6px;
       font-size: 0.88rem;
       color: var(--muted);
+    }
+
+    .field {
+      grid-column: 1 / -1;
+    }
+
+    .field-half {
+      grid-column: span 1;
+    }
+
+    .field-full {
+      grid-column: 1 / -1;
+    }
+
+    .feedback-form > .btn {
+      grid-column: 1 / -1;
+    }
+
+    .feedback-form label:focus-within {
+      color: #cfcfd4;
     }
 
     input,
@@ -461,6 +567,7 @@
       margin-top: 2px;
       font-size: 0.84rem;
       color: var(--muted);
+      grid-column: 1 / -1;
     }
 
     .error {
@@ -468,6 +575,7 @@
       margin-top: -2px;
       font-size: 0.85rem;
       color: #ff7070;
+      grid-column: 1 / -1;
     }
 
     .success {
@@ -478,6 +586,7 @@
       opacity: 0;
       transform: translateY(4px);
       transition: opacity 240ms var(--ease-silk-soft), transform 240ms var(--ease-silk-soft);
+      grid-column: 1 / -1;
     }
 
     .success.visible {
@@ -493,6 +602,16 @@
       color: #909096;
     }
 
+    @supports not ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+      .container {
+        background: rgba(10, 10, 12, 0.94);
+      }
+
+      .card {
+        background: rgba(12, 12, 14, 0.9);
+      }
+    }
+
     .debug-panel {
       position: fixed;
       right: 12px;
@@ -506,10 +625,6 @@
       backdrop-filter: blur(8px);
       color: var(--text);
       overflow: hidden;
-    }
-
-    .debug-panel.hidden {
-      display: none;
     }
 
     .debug-head {
@@ -567,6 +682,14 @@
         padding: 16px 18px 24px;
       }
 
+      .feedback-form {
+        grid-template-columns: 1fr;
+      }
+
+      .field-half {
+        grid-column: 1 / -1;
+      }
+
       .footer-note {
         padding: 12px 18px 18px;
       }
@@ -574,6 +697,13 @@
       .brand-logo {
         width: min(100%, 280px);
         max-width: 280px;
+      }
+
+      .debug-panel {
+        right: 8px;
+        left: 8px;
+        bottom: 8px;
+        width: auto;
       }
     }
 
@@ -654,6 +784,8 @@
           class="brand-logo"
           src="assets/dashi-logo-cropped.png"
           alt="Dashi"
+          decoding="async"
+          fetchpriority="high"
           onerror="this.onerror=null; this.src='assets/dashi-logo.png';"
         />
       </div>
@@ -673,7 +805,7 @@
         <p id="ratingText" class="rating-text" aria-live="polite"></p>
       </section>
 
-      <section id="highRatingSection" class="card section" aria-live="polite">
+      <section id="highRatingSection" class="card section" aria-live="polite" aria-hidden="true" inert>
         <p class="rating-title">¡Gracias por tu valoración! Tu reseña en Google nos impulsa.</p>
         <div class="actions">
           <a id="googleLinkHigh" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Dejar reseña en Google ⭐</a>
@@ -681,7 +813,7 @@
         </div>
       </section>
 
-      <section id="lowRatingSection" class="card section" aria-live="polite">
+      <section id="lowRatingSection" class="card section" aria-live="polite" aria-hidden="true" inert>
         <p class="rating-title">Queremos entender qué pasó para mejorar tu próxima experiencia.</p>
 
         <form id="feedbackForm" class="feedback-form" novalidate>
@@ -689,18 +821,18 @@
             <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
           </label>
 
-          <label for="name">Nombre (opcional)
+          <label class="field field-half" for="name">Nombre (opcional)
             <input id="name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Tu nombre" />
           </label>
 
-          <label for="whatsapp">WhatsApp (opcional)
-            <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="40" placeholder="Ej: +54 9 11 1234 5678" />
+          <label class="field field-half" for="whatsapp">WhatsApp (obligatorio)
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="40" pattern="^\+?[0-9\s()-]{8,40}$" required placeholder="Ej: +54 9 11 1234 5678" />
           </label>
 
-          <label for="message">Mensaje (obligatorio)
-            <textarea id="message" name="message" required maxlength="1000" placeholder="Contanos qué pasó y qué podríamos mejorar"></textarea>
+          <label class="field field-full" for="message">Mensaje (obligatorio)
+            <textarea id="message" name="message" required maxlength="1000" aria-describedby="feedbackHelper formError formSuccess" placeholder="Contanos qué pasó y qué podríamos mejorar"></textarea>
           </label>
-          <p class="helper">Este mensaje es privado y lo recibe solo el equipo de Dashi.</p>
+          <p id="feedbackHelper" class="helper">Este mensaje es privado y lo recibe solo el equipo de Dashi.</p>
 
           <p id="formError" class="error" aria-live="polite"></p>
           <p id="formSuccess" class="success" aria-live="polite"></p>
@@ -744,6 +876,7 @@
     const messageInput = document.getElementById("message");
     const formError = document.getElementById("formError");
     const formSuccess = document.getElementById("formSuccess");
+    const feedbackInputs = [nameInput, whatsappInput, messageInput];
 
     let selectedRating = 0;
     let sectionSwitchTimer = null;
@@ -795,6 +928,63 @@
       return String(value || "").replace(/\s+/g, " ").trim();
     }
 
+    function maskWhatsappForDebug(value) {
+      const digits = String(value || "").replace(/\D/g, "");
+      if (!digits) return "";
+      if (digits.length <= 4) return digits;
+      return `***${digits.slice(-4)}`;
+    }
+
+    function getDebugSafePayload(payload) {
+      if (!payload || typeof payload !== "object") {
+        return payload;
+      }
+
+      const safePayload = { ...payload };
+      if ("whatsapp" in safePayload) {
+        safePayload.whatsapp = maskWhatsappForDebug(safePayload.whatsapp);
+      }
+      if ("message" in safePayload) {
+        safePayload.messageLength = String(safePayload.message || "").length;
+        delete safePayload.message;
+      }
+      if ("userAgent" in safePayload) {
+        safePayload.userAgent = "(omitido en debug)";
+      }
+      return safePayload;
+    }
+
+    function sanitizeWhatsapp(value) {
+      const raw = String(value || "");
+      const filtered = raw.replace(/[^\d+\s()-]/g, "");
+      const hasLeadingPlus = filtered.startsWith("+");
+      const withoutPluses = filtered.replace(/\+/g, "");
+      return `${hasLeadingPlus ? "+" : ""}${withoutPluses}`.replace(/\s{2,}/g, " ");
+    }
+
+    function isValidWhatsapp(value) {
+      if (!value) return true; // La obligatoriedad se valida aparte.
+      if (!/^\+?[\d\s()-]+$/.test(value)) return false;
+
+      const digitsOnly = value.replace(/\D/g, "");
+      return digitsOnly.length >= 8 && digitsOnly.length <= 15;
+    }
+
+    function setFormError(message, focusEl) {
+      formError.textContent = message || "";
+      if (message && focusEl) {
+        focusEl.setAttribute("aria-invalid", "true");
+        focusEl.focus();
+      }
+    }
+
+    function clearFormMessages() {
+      formError.textContent = "";
+      formSuccess.textContent = "";
+      formSuccess.classList.remove("visible");
+      feedbackInputs.forEach((input) => input.removeAttribute("aria-invalid"));
+    }
+
     function fetchWithTimeout(url, options, timeoutMs) {
       const controller = new AbortController();
       const timerId = setTimeout(() => controller.abort(), timeoutMs);
@@ -817,6 +1007,7 @@
         const isActive = value <= rating;
         star.classList.toggle("active", isActive);
         star.setAttribute("aria-checked", value === rating ? "true" : "false");
+        star.tabIndex = value === (rating || 1) ? 0 : -1;
       });
     }
 
@@ -849,8 +1040,33 @@
       return height;
     }
 
+    function setSectionA11yState(section, isVisible) {
+      section.setAttribute("aria-hidden", isVisible ? "false" : "true");
+
+      if (isVisible) {
+        section.removeAttribute("inert");
+        if ("inert" in section) {
+          section.inert = false;
+        }
+        return;
+      }
+
+      if (section.contains(document.activeElement)) {
+        const fallbackStar = stars[Math.max(1, selectedRating || 1) - 1] || stars[0];
+        if (fallbackStar) {
+          fallbackStar.focus();
+        }
+      }
+
+      section.setAttribute("inert", "");
+      if ("inert" in section) {
+        section.inert = true;
+      }
+    }
+
     function hideSection(section) {
       if (!section.classList.contains("visible")) {
+        setSectionA11yState(section, false);
         section.style.maxHeight = "0px";
         return;
       }
@@ -858,6 +1074,7 @@
       section.style.maxHeight = `${section.scrollHeight}px`;
       void section.offsetHeight;
       section.classList.remove("visible");
+      setSectionA11yState(section, false);
 
       requestAnimationFrame(() => {
         section.style.maxHeight = "0px";
@@ -883,6 +1100,7 @@
 
       const openTargetSection = () => {
         section.style.maxHeight = "0px";
+        setSectionA11yState(section, true);
         section.classList.add("visible");
         void section.offsetHeight;
 
@@ -948,6 +1166,27 @@
       });
     });
 
+    updateStarsVisual(0);
+
+    whatsappInput.addEventListener("input", () => {
+      const sanitizedValue = sanitizeWhatsapp(whatsappInput.value);
+      if (whatsappInput.value !== sanitizedValue) {
+        whatsappInput.value = sanitizedValue;
+      }
+    });
+
+    feedbackInputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        input.removeAttribute("aria-invalid");
+        if (formError.textContent) {
+          formError.textContent = "";
+        }
+        if (formSuccess.classList.contains("visible")) {
+          formSuccess.classList.remove("visible");
+        }
+      });
+    });
+
     function wireGoogleButtonState(anchor) {
       if (!anchor) return;
 
@@ -977,6 +1216,7 @@
 
     [highRatingSection, lowRatingSection].forEach((section) => {
       section.style.maxHeight = "0px";
+      setSectionA11yState(section, false);
 
       section.addEventListener("transitionend", (event) => {
         if (event.propertyName !== "max-height") {
@@ -999,12 +1239,14 @@
 
     showPrivateFromHigh.addEventListener("click", () => {
       showSection(lowRatingSection);
-      messageInput.focus();
+      setTimeout(() => {
+        messageInput.focus();
+      }, 70);
     });
 
     async function sendFeedbackNormal(payload) {
       debugLog("POST ->", FEEDBACK_WEBHOOK_URL);
-      debugLog("payload", payload);
+      debugLog("payload", getDebugSafePayload(payload));
 
       const response = await fetchWithTimeout(FEEDBACK_WEBHOOK_URL, {
         method: "POST",
@@ -1027,9 +1269,31 @@
       return { response, responseText, responseJson };
     }
 
+    function createServerFeedbackError(serverPayload) {
+      const error = new Error(serverPayload && serverPayload.message ? serverPayload.message : "Server rejected feedback");
+      error.name = "FeedbackServerError";
+      error.serverCode = serverPayload && serverPayload.code ? serverPayload.code : "SERVER_REJECTED";
+      error.userMessage = serverPayload && serverPayload.message ? serverPayload.message : "";
+      if (serverPayload && Number.isFinite(Number(serverPayload.retryAfterSec))) {
+        error.retryAfterSec = Number(serverPayload.retryAfterSec);
+      }
+      return error;
+    }
+
+    function getSubmitErrorMessage(error) {
+      if (error && error.name === "AbortError") {
+        return "El envío tardó demasiado. Probá de nuevo.";
+      }
+
+      if (error && error.userMessage) {
+        return error.userMessage;
+      }
+
+      return "No se pudo enviar. Probá de nuevo.";
+    }
+
     async function sendFeedbackNoCors(payload) {
       debugLog("Fallback no-cors", "enviando sin confirmación de respuesta");
-      console.log("Fallback no-cors", "enviando sin confirmación de respuesta");
 
       await fetchWithTimeout(FEEDBACK_WEBHOOK_URL, {
         method: "POST",
@@ -1044,18 +1308,15 @@
 
     feedbackForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      formError.textContent = "";
-      formSuccess.textContent = "";
-      formSuccess.classList.remove("visible");
+      clearFormMessages();
       debugLog("Estado", "submit recibido");
 
-      const message = messageInput.value.trim();
+      const message = normalizeWhitespace(messageInput.value);
       const nameValue = normalizeWhitespace(nameInput.value);
-      const whatsappValue = normalizeWhitespace(whatsappInput.value);
+      const whatsappValue = normalizeWhitespace(sanitizeWhatsapp(whatsappInput.value));
 
       if (!message) {
-        formError.textContent = "El mensaje es obligatorio para enviar el feedback privado.";
-        messageInput.focus();
+        setFormError("El mensaje es obligatorio para enviar el feedback privado.", messageInput);
         return;
       }
 
@@ -1067,21 +1328,28 @@
         return;
       }
 
+      if (!whatsappValue) {
+        setFormError("El WhatsApp es obligatorio para enviar el feedback privado.", whatsappInput);
+        return;
+      }
+
       if (message.length > 1000) {
-        formError.textContent = "El mensaje es demasiado largo.";
-        messageInput.focus();
+        setFormError("El mensaje es demasiado largo.", messageInput);
         return;
       }
 
       if (nameValue.length > 80) {
-        formError.textContent = "El nombre es demasiado largo.";
-        nameInput.focus();
+        setFormError("El nombre es demasiado largo.", nameInput);
         return;
       }
 
       if (whatsappValue.length > 40) {
-        formError.textContent = "El WhatsApp es demasiado largo.";
-        whatsappInput.focus();
+        setFormError("El WhatsApp es demasiado largo.", whatsappInput);
+        return;
+      }
+
+      if (!isValidWhatsapp(whatsappValue)) {
+        setFormError("Ingresá un WhatsApp válido (solo números, con + opcional, entre 8 y 15 dígitos).", whatsappInput);
         return;
       }
 
@@ -1090,8 +1358,10 @@
       feedbackSubmitButton.setAttribute("aria-disabled", "true");
       feedbackSubmitButton.textContent = "Enviando...";
       feedbackForm.setAttribute("aria-busy", "true");
-      formError.textContent = "";
       debugLog("Estado", "Enviando...");
+
+      messageInput.value = message;
+      whatsappInput.value = whatsappValue;
 
       const payload = {
         rating: selectedRating || null,
@@ -1132,6 +1402,9 @@
           if (!response.ok) {
             throw new Error(`HTTP ${response.status} ${responseText || ""}`.trim());
           }
+          if (responseJson && responseJson.ok === false) {
+            throw createServerFeedbackError(responseJson);
+          }
           debugLog("Confirmado", responseJson || responseText || "OK");
           formSuccess.textContent = "Gracias. Tu mensaje fue enviado al equipo de Dashi.";
         } else {
@@ -1140,11 +1413,11 @@
 
         formSuccess.classList.add("visible");
         feedbackForm.reset();
+        whatsappInput.value = "";
+        updateStarsVisual(selectedRating);
       } catch (error) {
-        const errorMessage = (error && error.name === "AbortError")
-          ? "El envío tardó demasiado. Probá de nuevo."
-          : "No se pudo enviar. Probá de nuevo.";
-        formError.textContent = errorMessage;
+        const errorMessage = getSubmitErrorMessage(error);
+        setFormError(errorMessage);
         debugLog("Error", String(error && error.message ? error.message : error));
       } finally {
         feedbackSubmitButton.disabled = false;
@@ -1153,6 +1426,32 @@
         feedbackForm.removeAttribute("aria-busy");
       }
     });
+  </script>
+  <script>
+    (function () {
+      const speedInsightsPath = "/_vercel/speed-insights/script.js";
+
+      if (location.protocol === "file:") {
+        return;
+      }
+
+      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+
+      fetch(speedInsightsPath, { method: "HEAD", cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.defer = true;
+          script.src = speedInsightsPath;
+          document.body.appendChild(script);
+        })
+        .catch(() => {
+          // Host sin endpoint de Vercel Speed Insights (ej. preview local u otro hosting).
+        });
+    })();
   </script>
 </body>
 </html>
