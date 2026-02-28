@@ -18,6 +18,7 @@ No requiere build.
 
 1. Abrí `index.html` en el navegador.
 2. Probá el flujo de estrellas y formularios.
+3. Usá esta carpeta (`Landing/`) como fuente canónica; `Landing/Landing/` es una copia espejo para despliegues puntuales.
 
 ## Webhooks configurados
 
