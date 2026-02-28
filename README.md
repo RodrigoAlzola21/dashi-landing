@@ -22,6 +22,24 @@ No requiere build.
 
 ## Webhooks configurados
 
+## Integración de Vercel (Speed Insights + Analytics)
+
+La landing carga ambos scripts de Vercel de forma condicional:
+
+- `/_vercel/speed-insights/script.js`
+- `/_vercel/insights/script.js`
+
+Se hace un `HEAD` antes de inyectar cada script para evitar errores cuando se abre local (`file://`) o en hosts que no exponen esos endpoints.
+
+### Qué necesitás para que funcione en producción
+
+1. Deploy en Vercel (los endpoints `/_vercel/*` los sirve Vercel en runtime).
+2. Proyecto conectado a la cuenta/equipo donde quieras ver métricas.
+3. Habilitar **Web Analytics** y **Speed Insights** en el dashboard del proyecto.
+4. Publicar al menos un deployment y abrir la URL pública para generar eventos.
+
+No hace falta instalar `npm`, `yarn` ni `pnpm` para esta landing estática.
+
 ### Google Reviews
 
 Se configura en:
