@@ -18,6 +18,7 @@ No requiere build.
 
 1. Abrí `index.html` en el navegador.
 2. Probá el flujo de estrellas y formularios.
+3. Nota: esta carpeta es una copia espejo de `Landing/`; priorizá cambios en `Landing/` y sincronizá solo cuando sea necesario.
 
 ## Webhooks configurados
 

@@ -1310,7 +1310,10 @@
           debugLog("Error normal", String(normalError && normalError.message ? normalError.message : normalError));
           console.error("Normal send error:", normalError);
 
-          if (FEEDBACK_SEND_MODE === "auto" && normalError instanceof TypeError) {
+          const shouldFallbackToNoCors = FEEDBACK_SEND_MODE === "auto"
+            && (normalError instanceof TypeError || (normalError && normalError.name === "AbortError"));
+
+          if (shouldFallbackToNoCors) {
             await sendFeedbackNoCors(payload);
             sentWithoutConfirmation = true;
           } else {

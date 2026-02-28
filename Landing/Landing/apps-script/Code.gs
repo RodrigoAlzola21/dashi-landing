@@ -7,7 +7,7 @@ const MIN_WHATSAPP_DIGITS = 8;
 const MAX_WHATSAPP_DIGITS = 15;
 const WHATSAPP_ALLOWED_REGEX = /^\+?[\d\s()-]+$/;
 
-// Opcional: si el script NO esta vinculado al spreadsheet, completa este ID.
+// Opcional: si el script NO está vinculado al spreadsheet, completa este ID.
 const FALLBACK_SPREADSHEET_ID = '';
 
 function doPost(e) {

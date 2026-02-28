@@ -16,8 +16,9 @@ Landing estática para gestión de reputación de Dashi:
 
 No requiere build.
 
-1. Abrí `index.html` en el navegador.
-2. Probá el flujo de estrellas y formularios.
+1. Abrí `Landing/index.html` en el navegador.
+2. Si necesitás validar la copia espejo, abrí también `Landing/Landing/index.html` y verificá que esté sincronizada.
+3. Probá el flujo de estrellas y formularios.
 
 ## Webhooks configurados
 

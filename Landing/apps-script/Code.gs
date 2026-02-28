@@ -12,7 +12,7 @@ const CACHE_KEY_RATE_PREFIX = 'rate:';
 const CACHE_KEY_DUPLICATE_PREFIX = 'dup:';
 const LOG_PAYLOAD_PREVIEW_MAX_LENGTH = 500;
 
-// Opcional: si el script NO esta vinculado al spreadsheet, completa este ID.
+// Opcional: si el script NO está vinculado al spreadsheet, completa este ID.
 const FALLBACK_SPREADSHEET_ID = '';
 
 function doPost(e) {
