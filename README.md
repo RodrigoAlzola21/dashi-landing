@@ -7,20 +7,46 @@ Landing estática para gestión de reputación de Dashi:
 
 ## Archivos principales
 
-- `index.html`: landing completa (HTML/CSS/JS vanilla)
-- `apps-script/Code.gs`: webhook de Google Apps Script (guardar feedback en Google Sheets)
-- `assets/`: logos
-- `tools/trim-logo.html`: herramienta local para recortar PNG por alpha
+- `Landing/index.html`: landing completa (HTML/CSS/JS vanilla)
+- `Landing/apps-script/Code.gs`: webhook de Google Apps Script (guardar feedback en Google Sheets)
+- `Landing/assets/`: logos
+- `Landing/tools/trim-logo.html`: herramienta local para recortar PNG por alpha
 
 ## Cómo abrir localmente
 
 No requiere build.
 
 1. Abrí `Landing/index.html` en el navegador.
-2. Si necesitás validar la copia espejo, abrí también `Landing/Landing/index.html` y verificá que esté sincronizada.
-3. Probá el flujo de estrellas y formularios.
+2. Probá el flujo de estrellas y formularios.
 
 ## Webhooks configurados
+
+## Integración de Vercel (Speed Insights + Analytics)
+
+La landing carga ambos scripts de Vercel de forma condicional:
+
+- `/_vercel/speed-insights/script.js`
+- `/_vercel/insights/script.js`
+
+La landing evita cargar estos scripts cuando se abre en `file://`. En producción, los scripts se inyectan con `defer` y fallback silencioso para no romper en hosts sin endpoints de Vercel.
+
+### Qué necesitás para que funcione en producción
+
+1. Deploy en Vercel (los endpoints `/_vercel/*` los sirve Vercel en runtime).
+2. Proyecto conectado a la cuenta/equipo donde quieras ver métricas.
+3. Habilitar **Web Analytics** y **Speed Insights** en el dashboard del proyecto.
+4. Publicar al menos un deployment y abrir la URL pública para generar eventos.
+5. En Vercel, usar `Landing/` como **Root Directory** del proyecto para servir este `index.html` único.
+
+No hace falta instalar `npm`, `yarn` ni `pnpm` para esta landing estática.
+
+
+### Si Analytics no muestra datos
+
+- Verificá que la URL sea un deployment de **Vercel** (no preview local con `file://` ni otro hosting).
+- Confirmá que **Web Analytics** esté habilitado en Project Settings.
+- Probá en una ventana sin adblock/Brave shields, porque suelen bloquear `/_vercel/insights/script.js`.
+- La data puede tardar unos minutos en aparecer en el dashboard.
 
 ### Google Reviews
 
