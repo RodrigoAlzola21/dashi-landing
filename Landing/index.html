@@ -1456,5 +1456,31 @@
         });
     })();
   </script>
+  <script>
+    (function () {
+      const analyticsPath = "/_vercel/insights/script.js";
+
+      if (location.protocol === "file:") {
+        return;
+      }
+
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+
+      fetch(analyticsPath, { method: "HEAD", cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.defer = true;
+          script.src = analyticsPath;
+          document.body.appendChild(script);
+        })
+        .catch(() => {
+          // Host sin endpoint de Vercel Analytics (ej. preview local u otro hosting).
+        });
+    })();
+  </script>
 </body>
 </html>
