@@ -31,6 +31,10 @@
       --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
       --ease-silk-soft: cubic-bezier(0.24, 0.96, 0.32, 1);
       --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.22, 1.12, 0.3, 1);
+      --motion-fast: 180ms;
+      --motion-base: 280ms;
+      --motion-hero: 680ms;
       --card-pad: 24px;
       --card-gap: 18px;
     }
@@ -111,7 +115,7 @@
       z-index: 1;
       opacity: 0;
       transform: translateY(8px);
-      animation: containerEnter 620ms var(--ease-premium) forwards;
+      animation: containerEnter var(--motion-hero) var(--ease-premium) forwards;
     }
 
     .container::before,
@@ -228,12 +232,17 @@
       padding: var(--card-pad);
       margin-bottom: var(--card-gap);
       backdrop-filter: blur(8px);
-      transition: border-color 220ms var(--ease-silk-soft), box-shadow 220ms var(--ease-silk-soft);
+      transform: translateY(0);
+      transition:
+        border-color var(--motion-base) var(--ease-silk-soft),
+        box-shadow var(--motion-base) var(--ease-silk-soft),
+        transform var(--motion-base) var(--ease-spring);
     }
 
     .card:hover {
       border-color: rgba(245, 245, 247, 0.14);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02), 0 14px 28px rgba(0, 0, 0, 0.24);
+      transform: translateY(-2px);
     }
 
     .rating-title {
@@ -261,7 +270,11 @@
       padding: 4px;
       cursor: pointer;
       touch-action: manipulation;
-      transition: transform 170ms var(--ease-silk-soft), color 170ms var(--ease-silk-soft), filter 170ms var(--ease-silk-soft);
+      transition:
+        transform var(--motion-fast) var(--ease-spring),
+        color var(--motion-fast) var(--ease-silk-soft),
+        filter var(--motion-fast) var(--ease-silk-soft),
+        text-shadow var(--motion-fast) var(--ease-silk-soft);
       will-change: transform;
       text-shadow: 0 0 0 rgba(225, 29, 46, 0);
       transform-origin: center;
@@ -270,14 +283,14 @@
     .star:hover,
     .star:focus-visible {
       color: var(--accent);
-      transform: translateY(-1px) scale(1.05) rotateX(8deg);
+      transform: translateY(-2px) scale(1.06) rotateX(7deg);
       filter: drop-shadow(0 0 6px rgba(225, 29, 46, 0.14));
       outline: none;
     }
 
     .star.hovered {
       color: #f04c59;
-      transform: translateY(-1px) scale(1.025);
+      transform: translateY(-1px) scale(1.03);
       text-shadow: 0 0 12px rgba(225, 29, 46, 0.25);
     }
 
@@ -305,7 +318,7 @@
 
     .rating-text.is-updating {
       opacity: 0.45;
-      transform: translateY(2px);
+      transform: translateY(2px) scale(0.995);
     }
 
     .section {
@@ -317,13 +330,19 @@
       padding-bottom: 0;
       margin-bottom: 0;
       border-color: transparent;
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+      filter: blur(4px);
       transition:
-        max-height 240ms var(--ease-silk-soft),
-        padding-top 200ms var(--ease-silk-soft),
-        padding-bottom 200ms var(--ease-silk-soft),
-        margin-bottom 200ms var(--ease-silk-soft),
-        border-color 200ms ease;
-      will-change: max-height;
+        max-height 360ms var(--ease-premium),
+        padding-top 260ms var(--ease-silk-soft),
+        padding-bottom 260ms var(--ease-silk-soft),
+        margin-bottom 260ms var(--ease-silk-soft),
+        border-color 240ms ease,
+        opacity 280ms var(--ease-premium),
+        transform 340ms var(--ease-spring),
+        filter 280ms var(--ease-premium);
+      will-change: max-height, opacity, transform;
     }
 
     .section > * {
@@ -372,6 +391,9 @@
       padding-bottom: var(--card-pad);
       margin-bottom: var(--card-gap);
       border-color: rgba(245, 245, 247, 0.1);
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
     }
 
     .section.visible > * {
@@ -422,12 +444,12 @@
       overflow: hidden;
       touch-action: manipulation;
       transition:
-        transform 170ms var(--ease-silk-soft),
-        filter 170ms var(--ease-silk-soft),
-        background-color 170ms var(--ease-silk-soft),
-        border-color 170ms var(--ease-silk-soft),
-        box-shadow 170ms var(--ease-silk-soft),
-        opacity 170ms var(--ease-silk-soft);
+        transform var(--motion-fast) var(--ease-spring),
+        filter var(--motion-fast) var(--ease-silk-soft),
+        background-color var(--motion-fast) var(--ease-silk-soft),
+        border-color var(--motion-fast) var(--ease-silk-soft),
+        box-shadow var(--motion-fast) var(--ease-silk-soft),
+        opacity var(--motion-fast) var(--ease-silk-soft);
     }
 
     .btn:focus-visible {
@@ -455,7 +477,7 @@
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      filter: brightness(1.04);
+      filter: brightness(1.06) saturate(1.05);
       box-shadow: 0 14px 26px rgba(225, 29, 46, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
 
@@ -497,9 +519,9 @@
     }
 
     .btn:active {
-      transform: translateY(0) scale(0.992);
+      transform: translateY(0) scale(0.985);
       box-shadow: none;
-      transition-duration: 90ms;
+      transition-duration: 110ms;
     }
 
     .btn[aria-disabled="true"],
@@ -610,10 +632,21 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
-        animation-duration: 0.01ms !important;
+        animation-duration: 120ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        transition-duration: 140ms !important;
         scroll-behavior: auto !important;
+      }
+
+      .star:hover,
+      .star:focus-visible,
+      .card:hover,
+      .btn-primary:hover {
+        transform: none;
+      }
+
+      .section {
+        filter: none;
       }
     }
 
@@ -744,11 +777,13 @@
     @keyframes containerEnter {
       from {
         opacity: 0;
-        transform: translateY(8px) scale(0.996);
+        transform: translateY(12px) scale(0.992);
+        filter: blur(5px);
       }
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
+        filter: blur(0);
       }
     }
 
@@ -765,8 +800,8 @@
 
     @keyframes starTap {
       0% { transform: scale(1); }
-      40% { transform: scale(0.95) translateY(1px); }
-      72% { transform: scale(1.08); }
+      33% { transform: scale(0.92) translateY(1px); }
+      70% { transform: scale(1.1) translateY(-1px); }
       100% { transform: scale(1); }
     }
 
@@ -908,6 +943,7 @@
     let ratingTextMotionTimer = null;
     let debugPanel = null;
     let debugBody = null;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     googleLinkHigh.href = GOOGLE_REVIEW_URL;
     googleLinkLow.href = GOOGLE_REVIEW_URL;
@@ -1138,7 +1174,7 @@
 
       // Pequeña secuencia para que el cambio 3<->4 se sienta menos brusco.
       if (isSwitchingSections) {
-        sectionSwitchTimer = setTimeout(openTargetSection, 34);
+        sectionSwitchTimer = setTimeout(openTargetSection, prefersReducedMotion ? 0 : 72);
       } else {
         openTargetSection();
       }
@@ -1155,7 +1191,7 @@
       ratingText.textContent = `${rating} estrella${rating > 1 ? "s" : ""}. ${ratingMessages[rating]}`;
       ratingTextMotionTimer = setTimeout(() => {
         ratingText.classList.remove("is-updating");
-      }, 170);
+      }, prefersReducedMotion ? 120 : 240);
 
       if (rating >= 4) {
         showSection(highRatingSection);
