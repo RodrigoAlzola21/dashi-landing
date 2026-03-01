@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/Landing/assets/$1"
+    },
+    {
+      "source": "/tools/(.*)",
+      "destination": "/Landing/tools/$1"
+    },
+    {
+      "source": "/vercel-analytics-loader.js",
+      "destination": "/Landing/vercel-analytics-loader.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/Landing/index.html"
+    }
+  ]
+}
